@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Module Control
+Exec=/home/teledyne/ModuleControl_2.3/start_ModuleControl.sh
+Terminal=true
+Type=Application
+Icon=/home/teledyne/ModuleControl_2.3/teledyne.jpeg
+Name=Module Control
