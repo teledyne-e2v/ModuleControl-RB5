@@ -6,8 +6,8 @@
 #include <fstream>
 #include "i2c.hpp"
 #include "i2c.cpp"
-#include "ModuleControl_v230.hpp"
-#include "ModuleControl_v230.cpp"
+#include "ModuleControl.hpp"
+#include "ModuleControl.cpp"
 
 void printHelp();
 int read_sensor_feedback(ModuleCtrl *moduleCtrl);

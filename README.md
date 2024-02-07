@@ -1,4 +1,4 @@
-# module_control
+# ModuleControl
 Simple code to start controlling OPTIMOM module and play with some Gstreamer plugins
 
 
@@ -47,7 +47,7 @@ Open the two applications in separated terminals:
 
 **IMPORTANT RULES:**
 - it is required to have the two applications started at the same time
-- the video stream must be started BEFORE controlling module I2C bus
+- the video stream must be started BEFORE controlling image sensor through I2C bus
 
 
 ## Additionnal tips:
