@@ -3,11 +3,12 @@ Simple code to start controlling OPTIMOM module and play with some Gstreamer plu
 
 
 # Release Notes
-2.3: fixed-focus compatibility + temperature sensor
-2.2: add multifocus
-2.1: correct some gst commands
+- add compatibility with TMP451-Q1
+- fixed-focus compatibility + temperature sensor (NCT72)
+- add multifocus
+- correct some gst commands
 
-# Installation
+# Compilation
 IMPORTANT: make sure the time clock and date are correct in the Jetson before any compilation
 
 	sudo apt update
@@ -17,11 +18,13 @@ Recompile the sources:
 
 	make
 
-Install the following Gstreamer plugins following the associated instructions:
-- gst-autofocus
-- gst-bacode-reader
+# Gstreamer plugins
+The following Gstreamer plugins are comaptible with this application (not mandatory)
+- gst-autofocus: https://github.com/teledyne-e2v/gst-autoexposure
+- gst-bacode-reader: https://github.com/teledyne-e2v/gst-barcode-reader
 
-in order to have acces to the plugins when terminal is opened, add the following lines at the end of the file: ```~/.bashrc```
+Please following the associated instructions to install them.
+In order to have acces to the plugins when terminal is opened, add the following lines at the end of the file: ```~/.bashrc```
 
 	export GST_PLUGIN_PATH=/usr/local/lib/gstreamer-1.0/
 	export LD_LIBRARY_PATH=/usr/local/lib/
