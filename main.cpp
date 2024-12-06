@@ -2,22 +2,21 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/ioctl.h>
 #include <fstream>
-#include "i2c.hpp"
-#include "i2c.cpp"
 #include "ModuleControl.hpp"
 #include "ModuleControl.cpp"
 
 void printHelp();
 int read_sensor_feedback(ModuleCtrl *moduleCtrl);
-int start_MultiFocus_3dist(ModuleCtrl *moduleCtrl, int PdaRegValue1, int PdaRegValue2, int PdaRegValue3, float speed );
 
 /************************************************
 *Main fuction
 ************************************************/
 
-int main(){
+int main(int argc, char **argv){
 	//app variable
 	int isRunning = 1;
 	char input, stop;
@@ -27,6 +26,7 @@ int main(){
 	float tint=0;
 	float again=0;
 	float dgain=0;
+	float gain=0;	
 	int regAddress=0;
 	int regValue=0;
 	int state=0;
@@ -81,11 +81,17 @@ int main(){
 				scanf("%f",&again);
             			moduleCtrl->setAnalogGain(again);
 				break;
-			case 'g': //setup digital gain
+			case 'd': //setup digital gain
 				printf("Set digital gain (from x0.004 to x16)\nValue: ");
 				scanf("%f",&dgain);
 				moduleCtrl->setDigitalGain(dgain);
 				break;
+			case 'g': //setup global gain
+				printf("Set global gain (from x0.004 to x256)\nValue: ");
+				scanf("%f",&gain);
+				moduleCtrl->setGain(gain);
+				break;				
+				
 			case 's': //Read sensor state
 				err = moduleCtrl->read_sensor_state(&state);
 				if(err < 0)
@@ -108,78 +114,8 @@ int main(){
 					else printf(" \n");	
 				}
 				break;
-			case '1': //write PDA50 DAC value
-				printf("Enter PDA50 TLENS register value (Range:-91 to 879): ");
-				scanf("%d",&PdaRegValue); 
-				moduleCtrl->write_VdacPda(PdaRegValue);
-				break;
-			case '2': //read PDA50 DAC value
-            			moduleCtrl->read_VdacPda(&PdaRegValue, &PdaVoltageValue);
-				printf("PDA50 TLens: VdacPdaValue=%d, PdaVoltageValue=%.2fV\n", PdaRegValue, PdaVoltageValue);
-				break;
-/*			case '3':
-				err = dumpPda50Reg(devicepda, bus);
-				break;
-
-			case 'd':
-				err = dumpReg(device, bus);
-				break;
-
-
-			case 'e':
-				err = writeRegSafe(device, bus);
-				break;
-*/			case 'f': //Read feedback registers
+			case 'f': //Read feedback registers
 				read_sensor_feedback(moduleCtrl);
-				break;
-			case 'm':
-				printf("Enter distance 1: ");
-				scanf("%d",&dist1);
-				printf("Enter distance 2: ");
-				scanf("%d",&dist2); 
-				printf("Enter distance 3: ");
-				scanf("%d",&dist3); 
-				printf("Multifocus start with vdac=[%d, %d, %d]\n=>press CTRL+C to stop\n",dist1,dist2,dist3);
-				sleep(2);
-				while(1) start_MultiFocus_3dist(moduleCtrl, dist1, dist2, dist3, 1);
-			case 'z':
-				err=moduleCtrl->read_Temp(&localTemp,&remoteTemp,tmpMode);
-				if(err<0)
-				{
-					printf("Read temp error=%d\n",err);
-				}
-				else
-				{
-					printf("LocalTemp=%0.2f°C\n",localTemp);
-					printf("RemoteTemp=%0.2f°C\n",remoteTemp);
-				}
-				break;
-			case 'x':
-				err=moduleCtrl->get_TempMode(&tmpMode);
-				if(err<0)
-				{
-					printf("Read temp error=%d\n",err);
-				}
-				else
-				{
-					printf("TempMode=%d ",tmpMode);
-					if(tmpMode==0) printf("=> standard range (0:127°C)\n");
-					else if(tmpMode==1) printf("=> extended range (-55:+150°C)\n");
-					else printf("=> undefined mode\n");
-				}
-				break;
-			case 'y':
-				printf("Enter temperature range mode:\n\t0: standard range (0:127°C)\n\t1: extended range (-55:+150°C)\n");
-				scanf("%d",&tmpMode);
-				err=moduleCtrl->set_TempMode(tmpMode);
-				if(err<0)
-				{
-					printf("Write temp error=%d\n",err);
-				}
-				else
-				{
-					//printf("TempMode=%d \n",tmpMode);
-				}
 				break;
 
 			default:
@@ -198,23 +134,17 @@ int main(){
 ************************************************/
 void printHelp(){
 	system("clear");
-	printf("\nTELEDYNE-E2V OPTIMOM 2M Module running with Nvidia Jetson Nano\n");
+	printf("\nTELEDYNE-E2V OPTIMOM 2M Module running with Qualcomm RB5\n");
 	printf("\nMODULE CONTROL\n");
 	printf("Tools menu:\n");
 	printf("\tt:\tchange exposition time\n");
 	printf("\ta:\tchange analog gain\n");
-	printf("\tg:\tchange digital gain\n");
+	printf("\td:\tchange digital gain\n");
+	printf("\tg:\tchange global gain\n");	
 	printf("\tr:\tread a register\n");
 	printf("\tw:\twrite in a register\n");
 	printf("\ts:\tread sensor state\n");
 	printf("\tf:\tread feedback registers\n");
-	//printf("\td:\tdump register values\n");
-	printf("\t1:\tlens focus: write VDac register from -91 to 879\n");
-	printf("\t2:\tlens focus: read VDac register\n");
-	printf("\tm:\tstart Multifocus 3 distances\n");
-	printf("\tx:\tget temp mode\n");
-	printf("\ty:\tset temp mode\n");
-	printf("\tz:\tread temperature\n");
 	printf("\tc:\tclear window\n");
 	printf("\th:\tprint this help\n");
 	printf("\tq:\tquit\n");
@@ -298,25 +228,6 @@ int read_sensor_feedback(ModuleCtrl *moduleCtrl)
 	moduleCtrl->readReg(Address, &Value);
 	printf("@0x%04x fb_reg_frame_period=0x%04x / %d\n", Address, Value, Value);
 
-	return 0;
-}
-
-
-
-int start_MultiFocus_3dist(ModuleCtrl *moduleCtrl, int PdaRegValue1, int PdaRegValue2, int PdaRegValue3, float speed )
-{
-	printf("vdac=");
-	moduleCtrl->write_VdacPda(PdaRegValue1);
-	printf("%d\n",PdaRegValue1);
-	sleep(speed);
-	printf("vdac=");
-	moduleCtrl->write_VdacPda(PdaRegValue2);
-	printf("%d\n",PdaRegValue2);
-	sleep(speed);
-	printf("vdac=");
-	moduleCtrl->write_VdacPda(PdaRegValue3);
-	printf("%d\n",PdaRegValue3);
-	sleep(speed);
 	return 0;
 }
 

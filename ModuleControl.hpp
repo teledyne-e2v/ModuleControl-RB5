@@ -4,6 +4,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <math.h>
 
 /**
  * @brief 
@@ -32,35 +36,10 @@ class ModuleCtrl
 private:
     /**
      * @brief 
-     * Bus number
+     * Device node
      * 
      */
-    int bus;
-
-    /**
-     * @brief 
-     * Name of the ic2 bus
-     * 
-     */
-    char bus_name[32] = "/dev/i2c-6"; //<--bus 6
-
-    /**
-     * @brief 
-     * PDA IC2 device (control lens)
-     */
-    I2CDevice devicepda;
-
-    /**
-     * @brief 
-     * IC2 Device (control module)
-     */
-    I2CDevice device;
-
-    /**
-     * @brief 
-     * IC2 Device (temperature sensor)
-     */
-    I2CDevice devicetemp;
+    int fd;
 
 public:
     /**
@@ -79,6 +58,26 @@ public:
     void ModuleControlClose();
 
     /**
+     * @brief write specified value in the specified register
+     * 
+     * @param register address 
+     * @param value to write
+     * @return int 
+     */
+    int writeReg(int regAddr, int value);
+
+    /**
+     * @brief 
+     * Read specified register
+     * 
+     * @param register address 
+     * @param pointer to store the read value
+     * @return int 
+     */
+    int readReg(int regAddr, int *value);
+
+
+    /**
      * @brief Read the state of the sensor
      * 
      * @return int The sensor state value
@@ -88,15 +87,15 @@ public:
     /**
      * @brief Set the exposition time
      * 
-     * @param b 
+     * @param tint in milisecond 
      * @return int 
      */
-    int setTint(float b);
+    int setTint(float tint);
 
     /**
      * @brief Set the Analog Gain
      * 
-     * @param b 
+     * @param again 
      * @return int 
      */
     int setAnalogGain(float again);
@@ -104,48 +103,25 @@ public:
     /**
      * @brief Set the Digital Gain
      * 
-     * @param b1 
+     * @param dgain 
      * @return int 
      */
     int setDigitalGain(float dgain);
-
-    /**
-     * @brief 
-     * Set the PDA
+    
+     /**
+     * @brief Set the Gain
      * 
-     * @param PdaRegValue 
+     * @param gain 
      * @return int 
-     */
-    int write_VdacPda(int PdaRegValue);
-
-    /**
-     * @brief write specified value in the specified register
-     * 
-     * @param registre 
-     * @param value 
-     * @return int 
-     */
-    int writeReg(int regAddr, int value);
-
-    /**
-     * @brief 
-     * Read specified register
-     * 
-     * @param registre 
-     * @param value 
-     * @return int 
-     */
-    int readReg(int regAddr, int *value);
-
-    int read_VdacPda( int *PdaRegValue, double *PdaVoltageValue);
-
-    int read_Temp(double *LocalTempValue, double *RemoteTempValue, int TempMode);
-    int get_TempMode(int *tempMode);
-    int set_TempMode(int tempMode);
+     */   
+    int setGain(float gain);
+    
+    int hexStrToInt(char* hex_str);
+    int getReadValue(char* read_str);
 };
 
 struct solution
 {
-    int tintII;
-    int tintclk;
+    int tintLL;
+    int tintCK;
 };
