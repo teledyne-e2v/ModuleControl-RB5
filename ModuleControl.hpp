@@ -1,5 +1,4 @@
 #pragma once
-#include "i2c.hpp"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,28 +8,7 @@
 #include <fcntl.h>
 #include <math.h>
 
-/**
- * @brief 
- * 
- * @param device 
- * @param bus 
- * @return int 
- */
-int enable_VdacPda(I2CDevice device, int bus);
 
-/**
- * @brief 
- * 
- * @param device 
- * @param bus 
- * @return int 
- */
-int disable_VdacPda(I2CDevice device, int bus);
-
-/**
- * @brief This class is used to communicate with the camera module
- * 
- */
 class ModuleCtrl
 {
 private:

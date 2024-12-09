@@ -23,6 +23,8 @@
 
 
 #define E2V_NODE_PATH       "/sys/devices/platform/soc/ac50000.qcom,cci/ac50000.qcom,cci:qcom,cam-sensor3/e2v_node"
+#define E2VTOPAZ_READ_MODE 0
+#define E2VTOPAZ_WRITE_MODE 1
 
 /************************************************
  *Main fuction
@@ -82,7 +84,6 @@ int ModuleCtrl::getReadValue(char* read_str)
 	return value;
 }
 
-
 /************************************************
  *Read register
  ************************************************/
@@ -94,8 +95,8 @@ int ModuleCtrl::readReg(int regAddr, int *value)
 	int ret;
 	int error=0;
 	
-	sprintf(buf, "0x%02hx 0x%04hx", regAddr, 0x9999);
-
+	sprintf(buf, "%d 0x%02hx", E2VTOPAZ_READ_MODE, regAddr);
+    
 	ret = write(fd, buf, strlen(buf)+1);
 	printf("return write: %d\n", ret);
 
@@ -123,7 +124,7 @@ int ModuleCtrl::writeReg(int regAddr, int value)
 	
 	printf("reg_addr: 0x%x, reg_data: 0x%x\n", regAddr, value);
 
-	sprintf(buf, "0x%02hx 0x%04hx", regAddr, value );
+	sprintf(buf, "%d 0x%02hx 0x%04hx", E2VTOPAZ_WRITE_MODE, regAddr, value);
 	printf("buf val: %s\n", buf);
 
 	ret = write(fd, buf, strlen(buf)+1);
@@ -132,6 +133,9 @@ int ModuleCtrl::writeReg(int regAddr, int value)
 	return error;
 }
 
+/************************************************
+ *Get the sensor state
+ ************************************************/
 int ModuleCtrl::read_sensor_state(int *state)
 {
 	int regAddr;
@@ -146,6 +150,9 @@ int ModuleCtrl::read_sensor_state(int *state)
 	return error;
 }
 
+/************************************************
+ *Set the integration time
+ ************************************************/
 int ModuleCtrl::setTint(float tint)
 {
 	int regAddr, tline;
@@ -195,7 +202,6 @@ int ModuleCtrl::setTint(float tint)
 /************************************************
  *Set the analog gain
  ************************************************/
-
 int ModuleCtrl::setAnalogGain(float again)
 {
 	int regAddr, value;
@@ -285,7 +291,6 @@ int ModuleCtrl::setAnalogGain(float again)
 
 	return 0;
 }
-
 
 /************************************************
  *Set the digital gain
