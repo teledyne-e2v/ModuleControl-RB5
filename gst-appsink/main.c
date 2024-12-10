@@ -203,7 +203,7 @@ main (gint argc, gchar *argv[])
     GError *error = NULL;
 
     pipeline = gst_parse_launch ("qtiqmmfsrc name=camera ! \
-        video/x-raw,format=NV12,width=1920,height=1080,framerate=30/1 ! \
+        video/x-bayer,format=\(string\)mono,bpp=\(string\)10,width=1920,height=1080,framerate=60/1 ! \
         queue ! appsink name=sink emit-signals=true",
         &error);
 
