@@ -94,8 +94,6 @@ public:
      */   
     int setGain(float gain);
     
-    int hexStrToInt(char* hex_str);
-    int getReadValue(char* read_str);
 };
 
 struct solution

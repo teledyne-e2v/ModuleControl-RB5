@@ -26,6 +26,8 @@
 #define E2VTOPAZ_READ_MODE 0
 #define E2VTOPAZ_WRITE_MODE 1
 
+#define DEBUG 0
+
 /************************************************
  *Main fuction
  ************************************************/
@@ -67,23 +69,6 @@ void ModuleCtrl::ModuleControlClose()
 
 }
 
-
-int ModuleCtrl::hexStrToInt(char* hex_str)
-{
-	return strtoul(hex_str, NULL, 16);
-}
-
-int ModuleCtrl::getReadValue(char* read_str)
-{
-	char value_str[5];
-	int value;
-//	printf(read_str);
-	
-//	printf(value_str);
-	value=this->hexStrToInt(value_str);
-	return value;
-}
-
 /************************************************
  *Read register
  ************************************************/
@@ -94,20 +79,32 @@ int ModuleCtrl::readReg(int regAddr, int *value)
 	char read_buf[50] = {0};
 	int ret;
 	int error=0;
+	unsigned int read_addr;
+	unsigned int read_data;	
 	
 	sprintf(buf, "%d 0x%02hx", E2VTOPAZ_READ_MODE, regAddr);
     
 	ret = write(fd, buf, strlen(buf)+1);
-	printf("return write: %d\n", ret);
+	if(DEBUG==1) printf("return write: %d\n", ret);
 
 	ret = lseek(fd, 0, SEEK_SET);
-	printf("return lseek: %d\n", ret);
+	if(DEBUG==1) printf("return lseek: %d\n", ret);
 	//write() change the fd pos, need use lseek to make pos point to the start of the file
 
 	ret = read(fd, read_buf, sizeof(read_buf));
-	printf("return read: %d, buf: %s\n", ret, read_buf);
-
-	*value=1; //to be developped
+	if(DEBUG==1) printf("return read: %d, buf: %s\n", ret, read_buf);
+	
+	if (sscanf(read_buf, "addr:0x%02x data:0x%04x", &read_addr, &read_data) == 2)
+	{
+		if(DEBUG==1) printf("read_addr: 0x%02x / read_data: 0x%04x\n", read_addr, read_data);
+		*value=read_data;
+	}
+	else
+	{
+		if(DEBUG==1) printf("Failed to parse the read_buf: %s!\n", read_buf);
+		error=2;
+	}
+	
 
 	return error;
 }
@@ -122,13 +119,13 @@ int ModuleCtrl::writeReg(int regAddr, int value)
 	char buf[30] = {0};
 	int error=0;
 	
-	printf("reg_addr: 0x%x, reg_data: 0x%x\n", regAddr, value);
+	if(DEBUG==1) printf("reg_addr: 0x%x, reg_data: 0x%x\n", regAddr, value);
 
 	sprintf(buf, "%d 0x%02hx 0x%04hx", E2VTOPAZ_WRITE_MODE, regAddr, value);
-	printf("buf val: %s\n", buf);
+	if(DEBUG==1) printf("buf val: %s\n", buf);
 
 	ret = write(fd, buf, strlen(buf)+1);
-	printf("return write: %d\n", ret);
+	if(DEBUG==1) printf("return write: %d\n", ret);
 	
 	return error;
 }
