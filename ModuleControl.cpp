@@ -20,6 +20,7 @@
 #define REG_TINT_CK 0x0C
 #define REG_ANA_GAIN 0x0D
 #define REG_DIG_GAIN 0x0E
+#define REG_FRAME_PERIOD 0x07
 
 
 #define E2V_NODE_PATH       "/sys/devices/platform/soc/ac50000.qcom,cci/ac50000.qcom,cci:qcom,cam-sensor3/e2v_node"
@@ -148,7 +149,7 @@ int ModuleCtrl::read_sensor_state(int *state)
 }
 
 /************************************************
- *Set the integration time
+ *Set the integration time (ms)
  ************************************************/
 int ModuleCtrl::setTint(float tint)
 {
@@ -457,5 +458,42 @@ int ModuleCtrl::setGain(float gain)
 		return error;
 	}
 		
+	return error;
+}
+
+/************************************************
+ *Set the frame period (ms) for frame rate control
+ ************************************************/
+int ModuleCtrl::setFramePeriod(float tperiod)
+{
+	int regAddr, regVal, tline;
+	int error=0;
+
+	tperiod = tperiod * 1000000; // convert to nanoseconds
+	tperiod = tperiod / 20; // convert to clock cycle 50MHz
+
+	// read the line length
+	regAddr = REG_LINE_LENGTH;
+	error=this->readReg(regAddr, &tline);
+	
+	if (error != 0)
+	{
+		fprintf(stderr, "READ ERROR: 0x%x\n", regAddr);
+		error=-1;
+		return error;
+	}
+	
+	regVal = (int)tperiod / tline;
+	
+	// write in reg_frame_period
+	regAddr = REG_FRAME_PERIOD;
+	error=this->writeReg(regAddr, regVal);
+	if (error != 0)
+	{
+		fprintf(stderr, "WRITE ERROR: 0x%x\n", regAddr);
+		error=-2;
+		return error;
+	}
+
 	return error;
 }

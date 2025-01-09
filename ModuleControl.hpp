@@ -94,6 +94,14 @@ public:
      */   
     int setGain(float gain);
     
+    /**
+     * @brief Set the period time for frame rate control
+     * 
+     * @param tperiod in milisecond 
+     * @return int 
+     */
+    int setFramePeriod(float tperiod);
+    
 };
 
 struct solution

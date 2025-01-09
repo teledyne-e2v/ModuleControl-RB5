@@ -37,6 +37,7 @@ int main(int argc, char **argv){
         double PdaVoltageValue;
 	double localTemp, remoteTemp;
 	int tmpMode=0;
+	float tperiod=0;
 
 	moduleCtrl = new ModuleCtrl();
 
@@ -117,7 +118,11 @@ int main(int argc, char **argv){
 			case 'f': //Read feedback registers
 				read_sensor_feedback(moduleCtrl);
 				break;
-
+			case 'p': //setup tint
+				printf("Frame period time in ms : ");
+				scanf("%f",&tperiod);
+           			moduleCtrl->setFramePeriod(tperiod);
+				break;
 			default:
 				printf("Wrong input!\n\n");
 				printHelp();
@@ -140,7 +145,8 @@ void printHelp(){
 	printf("\tt:\tchange exposition time\n");
 	printf("\ta:\tchange analog gain\n");
 	printf("\td:\tchange digital gain\n");
-	printf("\tg:\tchange global gain\n");	
+	printf("\tg:\tchange global gain\n");
+	printf("\tp:\tchange frame period\n");	
 	printf("\tr:\tread a register\n");
 	printf("\tw:\twrite in a register\n");
 	printf("\ts:\tread sensor state\n");
